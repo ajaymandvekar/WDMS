@@ -1,0 +1,22 @@
+Problem Setting Up tomcat6 with JavaEE Edition?
+------------------------------------------------------------------------
+WorkAround:
+
+sudo apt-get install tomcat6
+cd /usr/share/tomcat6
+sudo ln -s /var/lib/tomcat6/conf conf
+sudo ln -s /etc/tomcat6/policy.d/03catalina.policy conf/catalina.policy
+sudo ln -s /var/log/tomcat6 log
+sudo chmod -R 777 /usr/share/tomcat6/conf
+#Addition
+sudo ln -s /var/lib/tomcat6/webapps webapps
+sudo chmod -R 777 /usr/share/tomcat6/webapps
+
+
+Configuring Server.xml file
+------------------------------
+cp tomcat6/server.xml /var/lib/tomcat6/conf/
+
+Setting up certificate file:
+-----------------------------
+cp tomcat6/.keystore /var/lib/tomcat6/webapps/

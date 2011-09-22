@@ -8,11 +8,18 @@
 	<constant name="struts.devMode" value="false" />
 	<constant name="struts.custom.i18n.resources"
 		value="ApplicationResources" />
-	<package name="default" extends="struts-default" namespace="/">
-		<action name="login" class="net.wdms.struts2.LoginAction">
-			<result name="success">Welcome.jsp</result>
+	<package name="default" extends="struts-default" namespace="/">	
+		<action name="LoginAction" class="net.wdmsfunc.LoginAction">
+			<result name="input">Login.jsp</result>
 			<result name="error">Login.jsp</result>
+			<result name="login">Welcome.jsp</result>
+			<result name="logout">Login.jsp</result>
 		</action>
+		 	
+		<action name="LogoutAction" class="net.wdmsfunc.LogoutAction">
+			<result name="logout">Login.jsp</result>
+		</action>
+		
 		<action name="userImage" class="net.wdms.struts2.FileUploadAction">
 			<interceptor-ref name="fileUpload">
 			<param name="maximumSize">2097152</param>

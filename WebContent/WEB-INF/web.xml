@@ -5,13 +5,33 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	
 	<display-name>WDMS Application</display-name>
-	
+		<servlet>
+<servlet-name>Captcha</servlet-name>
+   <servlet-class>net.wdmsfunc.CaptchaServlet</servlet-class>
+<init-param> 
+<description>passing height</description> 
+<param-name>height</param-name> 
+<param-value>30</param-value> 
+</init-param> 
+<init-param> 
+<description>passing height</description> 
+<param-name>width</param-name> 
+<param-value>120</param-value> 
+</init-param> 
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>Captcha</servlet-name>
+   <url-pattern>/Captcha.jpg</url-pattern>
+</servlet-mapping>
+
 	<filter>
 		<filter-name>struts2</filter-name>
 		<filter-class>
 			org.apache.struts2.dispatcher.FilterDispatcher
 		</filter-class>
 	</filter>
+	
 	
 	<filter-mapping>
 		<filter-name>struts2</filter-name>

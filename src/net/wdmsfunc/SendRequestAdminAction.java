@@ -9,6 +9,8 @@ import com.opensymphony.xwork2.validator.annotations.EmailValidator;
 import com.opensymphony.xwork2.validator.annotations.RegexFieldValidator;
 
 import org.apache.struts2.interceptor.SessionAware;
+import javax.servlet.http.*;
+import net.wdmsfunc.CaptchaServlet;
 
 public class SendRequestAdminAction extends ActionSupport implements SessionAware{
 
@@ -22,6 +24,7 @@ public class SendRequestAdminAction extends ActionSupport implements SessionAwar
 	private String password = null;
 	@SuppressWarnings("rawtypes")
 	private Map session = null;
+	private String captcha_response = null;
 	
 	public String execute() throws Exception {
 		String url = "jdbc:mysql://localhost:3306/";
@@ -35,7 +38,13 @@ public class SendRequestAdminAction extends ActionSupport implements SessionAwar
 		String query = null;
 		
 		try{
-			
+			String captcha_str = (String)session.get(CaptchaServlet.CAPTCHA_KEY) ;
+			if(!captcha_response.equals(captcha_str) )
+			{
+			     	addActionMessage("Invalid CaptchaCode! Please try again!");
+			     	return INPUT;
+			}
+					
 			try{
 				Class.forName(driverName).newInstance();
 				con=DriverManager.getConnection(url+dbName, userName,pass);
@@ -133,5 +142,13 @@ public class SendRequestAdminAction extends ActionSupport implements SessionAwar
 	public void setSession(Map session) {
 		this.session = session;
 		
+	}
+
+	public void setCaptcha_response(String captcha_response) {
+		this.captcha_response = captcha_response;
+	}
+
+	public String getCaptcha_response() {
+		return captcha_response;
 	}
 } 

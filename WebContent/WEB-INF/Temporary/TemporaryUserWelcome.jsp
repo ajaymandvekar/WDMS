@@ -55,7 +55,7 @@ font-stretch: wider;
 
 .TopNavigation a
 {
-	background-color: orange;
+	background-color: lightgreen;
 }
 .operation
 {
@@ -82,7 +82,7 @@ font-stretch: wider;
 	<div class="inner-container">
 	<img src="images/dms-banner.jpg" class="banner">
 		<div class="TopNavigation">
-			<s:a href="%{logout}">Logout</s:a>
+		<s:a href="%{logout}">Logout</s:a>
 		</div>
 		<div class="navigation">
 			<br>

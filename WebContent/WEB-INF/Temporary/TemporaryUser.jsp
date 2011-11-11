@@ -98,7 +98,7 @@ font-stretch: wider;
 <div class="outer-box-container">
 	<div class="inner-container">
 	<img src="images/dms-banner.jpg" class="banner">
-		<div class="TopNavigation">>
+		<div class="TopNavigation">
 			<s:a href="%{logout}">Logout</s:a>
 		</div>
 			<div class="navigation">
@@ -126,7 +126,6 @@ font-stretch: wider;
 		<div class="operation">
 		<h1>Welcome to Account Registration page</h1>
 		<s:actionmessage/>
-		<s:label>New User Account Creation:</s:label>
 		<s:form action="SendRequestAdminAction" method="POST" validate="true">
 				<s:actionerror/>
 				<s:textfield name="firstname" label="Firstname" size="20" />
@@ -137,6 +136,11 @@ font-stretch: wider;
 				<s:textfield name="email" label="Email" size="20" />
 				<s:actionerror/>
 				<s:password name="password" label="Password" size="20" />
+				<s:div>
+				<label>Captcha Validation</label>
+				<img src="<s:url value="Captcha.jpg"/>" />
+				</s:div>
+				<s:textfield label="Captcha Code" name="captcha_response" size="20" maxlength="10"/>
 				<s:submit key="label.sendreq" align="center" />
 		</s:form>
 		</div>

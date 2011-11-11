@@ -3,31 +3,597 @@
     "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
     "http://struts.apache.org/dtds/struts-2.0.dtd">
 <struts>
-	<constant name="struts.enable.DynamicMethodInvocation"
-		value="false" />
+	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
 	<constant name="struts.devMode" value="false" />
-	<constant name="struts.custom.i18n.resources"
-		value="ApplicationResources" />
-	<package name="default" extends="struts-default" namespace="/">	
+	<constant name="struts.custom.i18n.resources" value="ApplicationResources" />
+		
+	<package name="default" extends="struts-default" namespace="/">
+		<interceptors>
+			<interceptor name="AdminSessionCheckInterceptor" 
+				class="net.wdmsfunc.AdminSessionCheck">
+			</interceptor>
+			
+			<interceptor name="NoCachingHeadersInterceptor" 
+				class="net.wdmsfunc.NoCachingHeadersInterceptor">
+			</interceptor>
+			
+			<interceptor name="CachingHeadersInterceptor" 
+				class="net.wdmsfunc.CachingHeadersInterceptor">
+			</interceptor>
+			
+			<interceptor name="CorporateSessionCheckInterceptor" 
+				class="net.wdmsfunc.CorporateSessionCheck">
+			</interceptor>
+			
+			<interceptor name="DepartmentSessionCheckInterceptor" 
+				class="net.wdmsfunc.DepartmentSessionCheck">
+			</interceptor>
+			
+			<interceptor name="RegularSessionCheckInterceptor" 
+				class="net.wdmsfunc.RegularSessionCheck">
+			</interceptor>
+			
+			<interceptor name="TemporarySessionCheckInterceptor" 
+				class="net.wdmsfunc.TemporarySessionCheck">
+			</interceptor>
+			
+			<interceptor name="GuestSessionCheckInterceptor" 
+				class="net.wdmsfunc.GuestSessionCheck">
+			</interceptor>
+			
+			<interceptor name="DocumentReadCheckInterceptor" 
+				class="net.wdmsfunc.DocumentReadCheck">
+			</interceptor>
+			
+			<interceptor-stack name="NoCachingHeadersInterceptorStack">
+				<interceptor-ref name="NoCachingHeadersInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			
+			<interceptor-stack name="AdminSessionStack">
+				<interceptor-ref name="AdminSessionCheckInterceptor" />
+				<interceptor-ref name="NoCachingHeadersInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			
+			<interceptor-stack name="CorporateSessionStack">
+				<interceptor-ref name="NoCachingHeadersInterceptor" />
+				<interceptor-ref name="CorporateSessionCheckInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			
+			<interceptor-stack name="DepartmentSessionStack">
+				<interceptor-ref name="NoCachingHeadersInterceptor" />
+				<interceptor-ref name="DepartmentSessionCheckInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			
+			<interceptor-stack name="RegularSessionStack">
+				<interceptor-ref name="NoCachingHeadersInterceptor" />
+				<interceptor-ref name="RegularSessionCheckInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			
+			<interceptor-stack name="TemporarySessionStack">
+				<interceptor-ref name="NoCachingHeadersInterceptor" />
+				<interceptor-ref name="TemporarySessionCheckInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			
+			<interceptor-stack name="GuestSessionStack">
+				<interceptor-ref name="NoCachingHeadersInterceptor" />
+				<interceptor-ref name="GuestSessionCheckInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			
+			<interceptor-stack name="DocumentReadCheckStack">
+				<interceptor-ref name="NoCachingHeadersInterceptor" />
+				<interceptor-ref name="DocumentReadCheckInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			
+		</interceptors>
+	
+		<action name="AdminHomePageAction" class="net.wdmsfunc.AdminHomePageAction">
+			<interceptor-ref name="AdminSessionStack"></interceptor-ref>
+			<result name="login" type="chain">LogoutAction</result>
+			<result name="success">/WEB-INF/Admin/AdminWelcome.jsp</result>
+			<result name="error">Login.jsp</result>
+		</action>
+
+		<action name="CorporateHomePageAction">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result name="login" type="chain">LogoutAction</result>
+			<result>/WEB-INF/Corporate/CorporateManagerWelcome.jsp</result>
+		</action>
+		
+		<action name="DepartmentHomePageAction">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result name="login" type="chain">LogoutAction</result>
+			<result>/WEB-INF/Department/DepartmentManagerWelcome.jsp</result>
+		</action>
+		
+		<action name="RegularHomePageAction">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="login" type="chain">LogoutAction</result>
+			<result>/WEB-INF/Regular/RegularEmployeeWelcome.jsp</result>
+		</action>
+		
+		<action name="GuestHomePageAction">
+			<interceptor-ref name="GuestSessionStack"></interceptor-ref>
+			<result name="login" type="chain">LogoutAction</result>
+			<result>/WEB-INF/Guest/GuestUserWelcome.jsp</result>
+		</action>
+		
 		<action name="LoginAction" class="net.wdmsfunc.LoginAction">
+			<interceptor-ref name="NoCachingHeadersInterceptorStack"></interceptor-ref>
+			<result name="admin_user">/WEB-INF/Admin/AdminWelcome.jsp</result>
+			<result name="temporary_user">/WEB-INF/Temporary/TemporaryUserWelcome.jsp</result>
+			<result name="guest_user">/WEB-INF/Guest/GuestUserWelcome.jsp</result>
+			<result name="regular_user">/WEB-INF/Regular/RegularEmployeeWelcome.jsp</result>
+			<result name="department_manager_user">/WEB-INF/Department/DepartmentManagerWelcome.jsp</result>
+			<result name="corporate_manager_user">/WEB-INF/Corporate/CorporateManagerWelcome.jsp</result>
 			<result name="input">Login.jsp</result>
 			<result name="error">Login.jsp</result>
 			<result name="login">Welcome.jsp</result>
 			<result name="logout">Login.jsp</result>
 		</action>
-		 	
+	
 		<action name="LogoutAction" class="net.wdmsfunc.LogoutAction">
-			<result name="logout">Login.jsp</result>
+			<interceptor-ref name="NoCachingHeadersInterceptorStack"></interceptor-ref>
+			<result name="input" type="redirect">LoginAction</result>
+			<result name="logout" type="redirect">LoginAction</result>
 		</action>
 		
-		<action name="userImage" class="net.wdms.struts2.FileUploadAction">
+		<action name="NewUserRegisterAction" class="net.wdmsfunc.NewUserRegisterAction">
+			<result name="input">/WEB-INF/Temporary/TemporaryUser.jsp</result>
+			<result name="success">/WEB-INF/Temporary/TemporaryUser.jsp</result>
+		</action>
+		
+		<!-- $$$$$$$$$$$$$$$$$ Admin $$$$$$$$$$$$$$    -->
+		
+		<action name="AdminAction" class="net.wdmsfunc.AdminAction">
+			<interceptor-ref name="AdminSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Admin/AdminWelcome.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+			<result name="user_deny_success" type="chain">ViewRequests</result>
+			<result name="user_approve_success" type="chain">ViewRequests</result>
+			<result name="user_update_success" type="chain">ViewUserAccounts</result>
+			<result name="user_validation_error_view" type="chain">ViewRequests</result>
+			<result name="user_validation_error_modify" type="chain">ViewUserAccounts</result>
+			<result name="existing_user_deny_success" type="chain">ViewUserAccounts</result>
+			<result name="user_validation_error_add" type="chain">AdminAddUser</result>
+			<result name="user_account_add_success" type="chain">AdminAddUser</result>
+			<result name="user_account_deleted_success" type="chain">AdminDeleteAccounts</result>
+			<result name="input"></result>
+		</action>
+		
+		<action name="ViewRequests" method="admin_requests" class="net.wdmsfunc.AdminAction">
+			<interceptor-ref name="AdminSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Admin/AdminViewNewRequests.jsp</result>
+			<result name="input">/WEB-INF/Admin/AdminViewNewRequests.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+			<interceptor-ref name="AdminSessionStack"></interceptor-ref>
+		</action>
+		
+		<action name="AdminAddUser" method="admin_populate_list" class="net.wdmsfunc.AdminAction">
+			<interceptor-ref name="AdminSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Admin/AdminAddAccount.jsp</result>
+			<result name="input">/WEB-INF/Admin/AdminAddAccount.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="ViewUserAccounts" method="admin_current_users" class="net.wdmsfunc.AdminAction">
+			<interceptor-ref name="AdminSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Admin/AdminModifyUser.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="AdminDeleteAccounts" method="admin_current_users_delete_op" class="net.wdmsfunc.AdminAction">
+			<interceptor-ref name="AdminSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Admin/AdminDeleteUser.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+		</action>
+		
+		<!-- $$$$$$$$$$$$$$$$$ Logs $$$$$$$$$$$$$$    -->
+		
+		 <action name="ViewSystemLog" method="admin_system_log" class="net.wdmsfunc.AdminAction">
+			<interceptor-ref name="AdminSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Admin/AdminViewSystemLog.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+		</action>
+		
+		<!-- $$$$$$$$$$$$$$$$$ Account Registration $$$$$$$$$$$$$$    -->
+		
+		<action name="SendRequestAdminAction" class="net.wdmsfunc.SendRequestAdminAction">
+			<result name="success">/WEB-INF/Temporary/TemporaryUserWelcome.jsp</result>
+			<result name="input">/WEB-INF/Temporary/TemporaryUser.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+		</action>
+		
+		<!-- $$$$$$$$$$$$$$$$$ Document View $$$$$$$$$$$$$$    -->
+		
+		<action name="GetDocumentListAction" class="net.wdmsfunc.GetDocumentListAction">
+			<interceptor-ref name="NoCachingHeadersInterceptorStack"></interceptor-ref>
+			<result name="doc_view_corporate_success">/WEB-INF/Corporate/CorporateViewDocumentList.jsp</result>
+			<result name="doc_view_department_success">/WEB-INF/Department/DepartmentViewDocumentList.jsp</result>
+			<result name="doc_view_regular_success">/WEB-INF/Regular/RegularViewDocumentList.jsp</result>
+			<result name="doc_view_guest_success">/WEB-INF/Guest/GuestViewDocumentList.jsp</result>
+			<result name="input">/WEB-INF/Regular/RegularViewDocumentList.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+		</action>
+		
+		<!-- $$$$$$$$$$$$$$$$$ Document Upload $$$$$$$$$$$$$$    -->
+		
+		<action name="CorporateUploadDocument">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result>/WEB-INF/Corporate/CorporateUploadDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="CorporateUploadEncryptedDocument">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result>/WEB-INF/Corporate/CorporateUploadEncryptedDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		
+		<action name="DepartmentUploadDocument">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result>/WEB-INF/Department/DepartmentUploadDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="DepartmentUploadEncryptedDocument">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result name="login" type="chain">LogoutAction</result>
+			<result>/WEB-INF/Department/DepartmentUploadEncryptedDocument.jsp</result>
+		</action>
+			
+		<action name="RegularUploadDocument">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="login" type="chain">LogoutAction</result>
+			<result>/WEB-INF/Regular/RegularUploadDocument.jsp</result>
+		</action>
+		
+		<action name="RegularUploadEncryptedDocument">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="login" type="chain">LogoutAction</result>
+			<result>/WEB-INF/Regular/RegularUploadEncryptedDocument.jsp</result>
+		</action>
+		
+		<action name="corporate_uploaddocument" class="net.wdmsfunc.DocumentUploadAction" method="upload_document_without_encryption">
+		<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
 			<interceptor-ref name="fileUpload">
-			<param name="maximumSize">2097152</param>
-			<param name="allowedTypes">image/png,image/gif,image/jpeg,image/pjpeg</param>
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">application/vnd.ms-powerpoint,application/pdf,application/msword,application/excel,text/plain,image/jpeg,image/png,application/mspowerpoint,application/powerpoint,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.openxmlformats-officedocument.presentationml.template,application/vnd.openxmlformats-officedocument.presentationml.slideshow,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slide,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.ms-excel.addin.macroEnabled.12,application/vnd.ms-excel.sheet.binary.macroEnabled.12</param>
 			</interceptor-ref>
 			<interceptor-ref name="defaultStack"></interceptor-ref>
-			<result name="success">SuccessUserImage.jsp</result>
-			<result name="input">UserImage.jsp</result>
+			<result name="success">/WEB-INF/Corporate/CorporateUploadDocument.jsp</result>
+			<result name="error">/WEB-INF/Corporate/CorporateUploadDocument.jsp</result>
+			<result name="input">/WEB-INF/Corporate/CorporateUploadDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
 		</action>
+		
+		<action name="corporate_uploadencrypteddocument" class="net.wdmsfunc.DocumentUploadAction" method="upload_document_with_encryption">
+		<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<interceptor-ref name="fileUpload">
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">application/vnd.ms-powerpoint,application/pdf,application/msword,application/excel,text/plain,image/jpeg,image/png,application/mspowerpoint,application/powerpoint,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.openxmlformats-officedocument.presentationml.template,application/vnd.openxmlformats-officedocument.presentationml.slideshow,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slide,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.ms-excel.addin.macroEnabled.12,application/vnd.ms-excel.sheet.binary.macroEnabled.12</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Corporate/CorporateUploadEncryptedDocument.jsp</result>
+			<result name="error">/WEB-INF/Corporate/CorporateUploadEncryptedDocument.jsp</result>
+			<result name="input">/WEB-INF/Corporate/CorporateUploadEncryptedDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="department_uploaddocument" class="net.wdmsfunc.DocumentUploadAction" method="upload_document_without_encryption">
+		<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<interceptor-ref name="fileUpload">
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">application/vnd.ms-powerpoint,application/pdf,application/msword,application/excel,text/plain,image/jpeg,image/png,application/mspowerpoint,application/powerpoint,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.openxmlformats-officedocument.presentationml.template,application/vnd.openxmlformats-officedocument.presentationml.slideshow,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slide,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.ms-excel.addin.macroEnabled.12,application/vnd.ms-excel.sheet.binary.macroEnabled.12</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Department/DepartmentUploadDocument.jsp</result>
+			<result name="error">/WEB-INF/Department/DepartmentUploadDocument.jsp</result>
+			<result name="input">/WEB-INF/Department/DepartmentUploadDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="department_uploadencrypteddocument" class="net.wdmsfunc.DocumentUploadAction" method="upload_document_with_encryption">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<interceptor-ref name="fileUpload">
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">application/vnd.ms-powerpoint,application/pdf,application/msword,application/excel,text/plain,image/jpeg,image/png,application/mspowerpoint,application/powerpoint,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.openxmlformats-officedocument.presentationml.template,application/vnd.openxmlformats-officedocument.presentationml.slideshow,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slide,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.ms-excel.addin.macroEnabled.12,application/vnd.ms-excel.sheet.binary.macroEnabled.12</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Department/DepartmentUploadEncryptedDocument.jsp</result>
+			<result name="error">/WEB-INF/Department/DepartmentUploadEncryptedDocument.jsp</result>
+			<result name="input">/WEB-INF/Department/DepartmentUploadEncryptedDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="regular_uploaddocument" class="net.wdmsfunc.DocumentUploadAction" method="upload_document_without_encryption">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<interceptor-ref name="fileUpload">
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">application/vnd.ms-powerpoint,application/pdf,application/msword,application/excel,text/plain,image/jpeg,image/png,application/mspowerpoint,application/powerpoint,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.openxmlformats-officedocument.presentationml.template,application/vnd.openxmlformats-officedocument.presentationml.slideshow,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slide,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.ms-excel.addin.macroEnabled.12,application/vnd.ms-excel.sheet.binary.macroEnabled.12</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Regular/RegularUploadDocument.jsp</result>
+			<result name="error">/WEB-INF/Regular/RegularUploadDocument.jsp</result>
+			<result name="input">/WEB-INF/Regular/RegularUploadDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="regular_uploadencrypteddocument" class="net.wdmsfunc.DocumentUploadAction" method="upload_document_with_encryption">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<interceptor-ref name="fileUpload">
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">application/pdf,application/msword,application/excel,text/plain,image/jpeg,image/png,application/mspowerpoint,application/powerpoint,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.openxmlformats-officedocument.presentationml.template,application/vnd.openxmlformats-officedocument.presentationml.slideshow,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slide,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.ms-excel.addin.macroEnabled.12,application/vnd.ms-excel.sheet.binary.macroEnabled.12</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Regular/RegularUploadEncryptedDocument.jsp</result>
+			<result name="error">/WEB-INF/Regular/RegularUploadEncryptedDocument.jsp</result>
+			<result name="input">/WEB-INF/Regular/RegularUploadEncryptedDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<!-- $$$$$$$$$$$$$$$$$ Document Read $$$$$$$$$$$$$$    -->
+		
+		<action name="ReadDocument" class="net.wdmsfunc.DocumentReadAction" method="read_document">
+		<interceptor-ref name="DocumentReadCheckStack"></interceptor-ref>
+			<result name="success" type="stream">
+            	<param name="contentType">${mimeType}</param>
+ 				<param name="inputName">theStream</param>
+ 				<param name="contentDisposition">attachment;filename="${download_filename}"</param>
+ 				<param name="bufferSize">1024</param>
+    		</result>
+   			<result name="error" type="chain">GetDocumentListAction</result>
+   			<result name="input" type="chain">GetDocumentListAction</result>	
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="ReadEncryptedDocument" class="net.wdmsfunc.DocumentReadAction" method="read_encrypted_document">
+		<interceptor-ref name="DocumentReadCheckStack"></interceptor-ref>
+			<result name="success" type="stream">
+            	<param name="contentType">${mimeType}</param>
+ 				<param name="inputName">theStream</param>
+ 				<param name="contentDisposition">attachment;filename="${download_filename}"</param>
+ 				<param name="bufferSize">1024</param>
+    		</result>
+    		<result name="error" type="chain">GetDocumentListAction</result>
+    		<result name="input" type="chain">GetDocumentListAction</result>	
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<!-- $$$$$$$$$$$$$$$$$ Document Share $$$$$$$$$$$$$$    -->
+		
+		<action name="RegularShareDocument" method="populate_privileges" class="net.wdmsfunc.DocumentShareAction">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Regular/RegularShareDocument.jsp</result>
+			<result name="error" type="chain">GetDocumentListAction</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="regular_sharedocument" class="net.wdmsfunc.DocumentShareAction">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="success" type="chain">RegularShareDocument</result>
+			<result name="error" type="chain">RegularShareDocument</result>
+			<result name="input" type="chain">RegularShareDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="DepartmentShareDocument" method="populate_privileges" class="net.wdmsfunc.DocumentShareAction">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Department/DepartmentShareDocument.jsp</result>
+			<result name="error" type="chain">GetDocumentListAction</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="department_sharedocument" class="net.wdmsfunc.DocumentShareAction">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result name="success" type="chain">DepartmentShareDocument</result>
+			<result name="error" type="chain">DepartmentShareDocument</result>
+			<result name="input" type="chain">DepartmentShareDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="CorporateShareDocument" method="populate_privileges" class="net.wdmsfunc.DocumentShareAction">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Corporate/CorporateShareDocument.jsp</result>
+			<result name="error" type="chain">GetDocumentListAction</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="corporate_sharedocument" class="net.wdmsfunc.DocumentShareAction">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result name="success" type="chain">CorporateShareDocument</result>
+			<result name="error" type="chain">CorporateShareDocument</result>
+			<result name="input" type="chain">CorporateShareDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+		<!-- $$$$$$$$$$$$$$$$$ Document Check-in $$$$$$$$$$$$$$    -->
+		
+		<action name="CorporateCheckinDocument" method="populate_documents" class="net.wdmsfunc.DocumentCheckinAction">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Corporate/CorporateCheckinDocument.jsp</result>
+			<result name="error" type="chain">CorporateCheckinDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+		<action name="corporate_checkindocument" class="net.wdmsfunc.DocumentCheckinAction" method="checkin_document">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result name="success" type="chain">CorporateCheckinDocument</result>
+			<result name="error" type="chain">CorporateCheckinDocument</result>
+			<result name="input" type="chain">CorporateCheckinDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+		
+		<action name="DepartmentCheckinDocument" method="populate_documents" class="net.wdmsfunc.DocumentCheckinAction">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Department/DepartmentCheckinDocument.jsp</result>
+			<result name="error" type="chain">DepartmentCheckinDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+		<action name="department_checkindocument" class="net.wdmsfunc.DocumentCheckinAction" method="checkin_document">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result name="success" type="chain">DepartmentCheckinDocument</result>
+			<result name="error" type="chain">DepartmentCheckinDocument</result>
+			<result name="input" type="chain">DepartmentCheckinDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+	
+		<action name="RegularCheckinDocument" method="populate_documents" class="net.wdmsfunc.DocumentCheckinAction">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Regular/RegularCheckinDocument.jsp</result>
+			<result name="error" type="chain">RegularCheckinDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+		<action name="regular_checkindocument" class="net.wdmsfunc.DocumentCheckinAction" method="checkin_document">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="success" type="chain">RegularCheckinDocument</result>
+			<result name="error" type="chain">RegularCheckinDocument</result>
+			<result name="input" type="chain">RegularCheckinDocument</result>
+			<result name="login" type="chain">LogoutAction</result><result name="login" type="chain">LogoutAction</result>
+		</action>
+
+		<action name="GuestCheckinDocument" method="populate_documents" class="net.wdmsfunc.DocumentCheckinAction">
+			<interceptor-ref name="GuestSessionStack"></interceptor-ref>
+			<result name="success">/WEB-INF/Guest/GuestCheckinDocument.jsp</result>
+			<result name="error" type="chain">GuestCheckinDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="guest_checkindocument" class="net.wdmsfunc.DocumentCheckinAction" method="checkin_document">
+			<interceptor-ref name="GuestSessionStack"></interceptor-ref>
+			<result name="success" type="chain">GuestCheckinDocument</result>
+			<result name="error" type="chain">GuestCheckinDocument</result>
+			<result name="input" type="chain">GuestCheckinDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+		<!-- $$$$$$$$$$$$$$$$$ Document Check-out $$$$$$$$$$$$$$    -->
+		
+		<action name="CorporateCheckoutDocument" method="populate_documents" class="net.wdmsfunc.DocumentCheckoutAction">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result name="doc_view_corporate_success">/WEB-INF/Corporate/CorporateCheckoutDocument.jsp</result>
+			<result name="error">/WEB-INF/Corporate/CorporateCheckoutDocument.jsp</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="corporate_checkoutdocument" class="net.wdmsfunc.DocumentCheckoutAction" method="checkout_document">
+			<interceptor-ref name="CorporateSessionStack"></interceptor-ref>
+			<result name="success" type="chain">CorporateCheckoutDocument</result>
+			<result name="error" type="chain">CorporateCheckoutDocument</result>
+			<result name="input" type="chain">CorporateCheckoutDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="DepartmentCheckoutDocument" method="populate_documents" class="net.wdmsfunc.DocumentCheckoutAction">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result name="doc_view_department_success">/WEB-INF/Department/DepartmentCheckoutDocument.jsp</result>
+			<result name="error" type="chain">DepartmentCheckoutDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="department_checkoutdocument" class="net.wdmsfunc.DocumentCheckoutAction" method="checkout_document">
+			<interceptor-ref name="DepartmentSessionStack"></interceptor-ref>
+			<result name="success" type="chain">DepartmentCheckoutDocument</result>
+			<result name="error" type="chain">DepartmentCheckoutDocument</result>
+			<result name="input" type="chain">DepartmentCheckoutDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+		<action name="RegularCheckoutDocument" method="populate_documents" class="net.wdmsfunc.DocumentCheckoutAction">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="doc_view_regular_success">/WEB-INF/Regular/RegularCheckoutDocument.jsp</result>
+			<result name="error" type="chain">RegularCheckoutDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="regular_checkoutdocument" class="net.wdmsfunc.DocumentCheckoutAction" method="checkout_document">
+			<interceptor-ref name="RegularSessionStack"></interceptor-ref>
+			<result name="success" type="chain">RegularCheckoutDocument</result>
+			<result name="error" type="chain">RegularCheckoutDocument</result>
+			<result name="input" type="chain">RegularCheckoutDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+			
+		<action name="GuestCheckoutDocument" method="populate_documents" class="net.wdmsfunc.DocumentCheckoutAction">
+			<interceptor-ref name="GuestSessionStack"></interceptor-ref>
+			<result name="doc_view_guest_success">/WEB-INF/Guest/GuestCheckoutDocument.jsp</result>
+			<result name="error" type="chain">GuestCheckoutDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="guest_checkoutdocument" class="net.wdmsfunc.DocumentCheckoutAction" method="checkout_document">
+			<interceptor-ref name="GuestSessionStack"></interceptor-ref>
+			<result name="success" type="chain">GuestCheckoutDocument</result>
+			<result name="error" type="chain">GuestCheckoutDocument</result>
+			<result name="input" type="chain">GuestCheckoutDocument</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+
+
+		<!-- $$$$$$$$$$$$$$$$$ Document Delete $$$$$$$$$$$$$$    -->
+		
+		<action name="DeleteDocument" class="net.wdmsfunc.DocumentDeleteAction">
+			<interceptor-ref name="NoCachingHeadersInterceptorStack"></interceptor-ref>
+			<result name="success" type="chain">GetDocumentListAction</result>
+    		<result name="error" type="chain">GetDocumentListAction</result>
+			<result name="input" type="chain">GetDocumentListAction</result>	
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		
+		<!-- $$$$$$$$$$$$$$$$$ Document Update $$$$$$$$$$$$$$    -->
+		
+		<action name="DocumentUpdateAction" method="populate_documents" class="net.wdmsfunc.DocumentUpdateAction">
+			<result name="doc_view_corporate_success">/WEB-INF/Corporate/CorporateUpdateDocument.jsp</result>
+			<result name="doc_view_department_success">/WEB-INF/Department/DepartmentUpdateDocument.jsp</result>
+			<result name="doc_view_regular_success">/WEB-INF/Regular/RegularUpdateDocument.jsp</result>
+			<result name="doc_view_guest_success">/WEB-INF/Guest/GuestUpdateDocument.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="updatedocument" method="update_document_without_encryption" class="net.wdmsfunc.DocumentUpdateAction">
+			<interceptor-ref name="fileUpload">
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">application/vnd.ms-powerpoint,application/pdf,application/msword,application/excel,text/plain,image/jpeg,image/png,application/mspowerpoint,application/powerpoint,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.openxmlformats-officedocument.presentationml.template,application/vnd.openxmlformats-officedocument.presentationml.slideshow,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slide,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.ms-excel.addin.macroEnabled.12,application/vnd.ms-excel.sheet.binary.macroEnabled.12</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="input" type="chain">DocumentUpdateAction</result>
+			<result name="SUCCESS" type="chain">DocumentUpdateAction</result>
+			<result name="ERROR" type="chain">DocumentUpdateAction</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="updatedocument_with_encrypt" method="update_document_with_encryption" class="net.wdmsfunc.DocumentUpdateAction">
+			<interceptor-ref name="fileUpload">
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">application/vnd.ms-powerpoint,application/pdf,application/msword,application/excel,text/plain,image/jpeg,image/png,application/mspowerpoint,application/powerpoint,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.openxmlformats-officedocument.presentationml.template,application/vnd.openxmlformats-officedocument.presentationml.slideshow,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slide,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.ms-excel.addin.macroEnabled.12,application/vnd.ms-excel.sheet.binary.macroEnabled.12</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="input" type="chain">DocumentUpdateAction</result>
+			<result name="SUCCESS" type="chain">DocumentUpdateAction</result>
+			<result name="ERROR" type="chain">DocumentUpdateAction</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
+		<action name="UpdateMetaDataDocument" method ="UpdateMetaDataDocument" class="net.wdmsfunc.DocumentUpdateAction">
+			<result name="success" type="chain">DocumentUpdateAction</result>
+    		<result name="error" type="chain">DocumentUpdateAction</result>
+    		<result name="input" type="chain">DocumentUpdateAction</result>
+			<result name="login" type="chain">LogoutAction</result>
+		</action>
+		
 	</package>
 </struts>

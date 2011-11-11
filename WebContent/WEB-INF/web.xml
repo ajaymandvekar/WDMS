@@ -3,17 +3,21 @@
 	xmlns="http://java.sun.com/xml/ns/j2ee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	
 	<display-name>WDMS Application</display-name>
+	
 	<filter>
 		<filter-name>struts2</filter-name>
 		<filter-class>
 			org.apache.struts2.dispatcher.FilterDispatcher
 		</filter-class>
 	</filter>
+	
 	<filter-mapping>
 		<filter-name>struts2</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	
 	<security-constraint>
             <web-resource-collection>
                     <web-resource-name>Security</web-resource-name>
@@ -23,7 +27,13 @@
                     <transport-guarantee>CONFIDENTIAL</transport-guarantee>
             </user-data-constraint>
     </security-constraint>
+  
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+    
 	<welcome-file-list>
 		<welcome-file>Login.jsp</welcome-file>
 	</welcome-file-list>
+	
 </web-app>

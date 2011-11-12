@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -52,69 +53,69 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		logentries = Log.getSystemLogEntries();
 		return SUCCESS;
 	}
-	
-	
-	
+
+
+
 	/** Validation Methods for Admin functions **/
 	public int validate_user_already_exists() throws SQLException
 	{
 		//check if user already exists
 		int result = 0;
 		try{
-				String url = "jdbc:mysql://localhost:3306/";
-				String dbName = "wdms";
-				String driverName = "org.gjt.mm.mysql.Driver";
-				String userName = "root";
-				String pass = "aj";
-				Connection con=null;
-				Statement stmt=null;
-					
-				try{
-					Class.forName(driverName).newInstance();
-					con=DriverManager.getConnection(url+dbName, userName,pass);
-					stmt=con.createStatement();
-				}
-				catch(Exception e){
-					addActionError(e.toString());
-				}
-					
-				stmt = con.createStatement();
+			String url = "jdbc:mysql://localhost:3306/";
+			String dbName = "wdms";
+			String driverName = "org.gjt.mm.mysql.Driver";
+			String userName = "root";
+			String pass = "aj";
+			Connection con=null;
+			Statement stmt=null;
 
-				if(stmt !=null)
-				{
-					String query1 = "Select * from user where email='"+email+"'";
-					// execute the query, and get a java resultset
-					ResultSet rs = stmt.executeQuery(query1);
-					// iterate through the java resultset
-					rs.last();
-	  		        int rowCount = rs.getRow();
-					if(rowCount > 0)
-					{
-						addActionMessage("ERROR: User already exists!");
-						result = 1;
-					}
-				}
-
-			}	
-			catch (Exception e) {
-				result = 1;
+			try{
+				Class.forName(driverName).newInstance();
+				con=DriverManager.getConnection(url+dbName, userName,pass);
+				stmt=con.createStatement();
 			}
-			return result;
+			catch(Exception e){
+				addActionError(e.toString());
+			}
+
+			stmt = con.createStatement();
+
+			if(stmt !=null)
+			{
+				String query1 = "Select * from user,temp_user where user.email='" + email + "' or temp_user.email='" +email +"'";
+				// execute the query, and get a java resultset
+				ResultSet rs = stmt.executeQuery(query1);
+				// iterate through the java resultset
+				rs.last();
+				int rowCount = rs.getRow();
+				if(rowCount > 0)
+				{
+					addActionMessage("ERROR: User already exists, or user already has sent request without validation his email account!");
+					result = 1;
+				}
+			}
+
+		}	
+		catch (Exception e) {
+			result = 1;
+		}
+		return result;
 
 	}
-	
-	
 
-	
-	
+
+
+
+
 	/** Validation Methods for Admin functions **/
 	public int validate_role_selection(boolean add_account_check) throws SQLException
 	{
-		
+
 		int num_sel_dept = 0;
 		int result = 0;
 		String desig = curr_designation;
-		
+
 		if(add_account_check)
 		{
 			if(firstname.isEmpty())
@@ -135,14 +136,14 @@ public class AdminAction extends ActionSupport implements SessionAware{
 			else
 			{
 				// check email validation
-				 Pattern p = Pattern.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
-				 Matcher m = p.matcher(email);
-				 boolean b = m.matches();
-				 if(!b)
-				 {
-					 addActionMessage("Please enter valid email address");
-			 		 result = 1;
-				 }
+				Pattern p = Pattern.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+				Matcher m = p.matcher(email);
+				boolean b = m.matches();
+				if(!b)
+				{
+					addActionMessage("Please enter valid email address");
+					result = 1;
+				}
 			}
 			if(password.isEmpty())
 			{
@@ -151,17 +152,17 @@ public class AdminAction extends ActionSupport implements SessionAware{
 			}
 			else
 			{
-			// check password validation
-			 Pattern p = Pattern.compile("(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{8,10})$");
-			 Matcher m = p.matcher(password);
-			 boolean b = m.matches();
-			 if(!b)
-			 {
-				 addActionMessage("Password must be between 8 and 10 characters, contain at least one digit and one alphabetic character, and must not contain special characters.");
-		 		 result = 1;
-			 }
+				// check password validation
+				Pattern p = Pattern.compile("(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{8,10})$");
+				Matcher m = p.matcher(password);
+				boolean b = m.matches();
+				if(!b)
+				{
+					addActionMessage("Password must be between 8 and 10 characters, contain at least one digit and one alphabetic character, and must not contain special characters.");
+					result = 1;
+				}
 			}
-			
+
 			if(!password_confirm.equals(password))
 			{
 				addActionMessage("Please check password fields");	
@@ -183,7 +184,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 				num_sel_dept = temp.length;
 			}
 		}	
-		
+
 		//Check if degisnation is selected for the current user
 		if(!desig.equalsIgnoreCase("-1"))
 		{	
@@ -262,7 +263,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		{
 			return ERROR;
 		}
-		
+
 		String url = "jdbc:mysql://localhost:3306/";
 		String dbName = "wdms";
 		String driverName = "org.gjt.mm.mysql.Driver";
@@ -277,7 +278,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 
 		department_names = new ArrayList<String>();
 		designation_names = new ArrayList<String>();
-  	  
+
 		try
 		{  
 			Class.forName(driverName).newInstance();
@@ -370,7 +371,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		{
 			return ERROR;
 		}
-		
+
 		String url = "jdbc:mysql://localhost:3306/";
 		String dbName = "wdms";
 		String driverName = "org.gjt.mm.mysql.Driver";
@@ -381,7 +382,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 
 		department_names = new ArrayList<String>();
 		designation_names = new ArrayList<String>();
-		
+
 		try
 		{  
 			Class.forName(driverName).newInstance();
@@ -491,7 +492,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		{
 			return ERROR;
 		}
-		
+
 		try{
 			//Validate User Inputs - Designation and Department List
 			result_validate = validate_role_selection(false);
@@ -609,7 +610,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		{
 			return ERROR;
 		}
-		
+
 		System.out.println("Deny Request Function");
 
 		String url = "jdbc:mysql://localhost:3306/";
@@ -663,7 +664,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		{
 			return ERROR;
 		}
-		
+
 		System.out.println("Deny Request Function");
 
 		String url = "jdbc:mysql://localhost:3306/";
@@ -717,7 +718,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		{
 			return ERROR;
 		}
-		
+
 		String url = "jdbc:mysql://localhost:3306/";
 		String dbName = "wdms";
 		String driverName = "org.gjt.mm.mysql.Driver";
@@ -765,12 +766,12 @@ public class AdminAction extends ActionSupport implements SessionAware{
 
 	/** Populate the department list and designation List**/
 	public String admin_populate_list() throws SQLException{
-		
+
 		if(!session.containsKey("userid"))
 		{
 			return ERROR;
 		}
-		
+
 		String url = "jdbc:mysql://localhost:3306/";
 		String dbName = "wdms";
 		String driverName = "org.gjt.mm.mysql.Driver";
@@ -840,6 +841,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		Connection con=null;
 		Statement stmt=null;
 		String query = null;
+		PreparedStatement prest = null;
 
 		int privilege_level = 0;
 		int result_validate = 0;
@@ -850,11 +852,15 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		{
 			return ERROR;
 		}
-		
+
 		try{
 			//Validate User Inputs - Designation and Department List
-			result_validate = validate_role_selection(true) & validate_user_already_exists();
-			if(result_validate >=1)
+			if(validate_user_already_exists() > 0)
+			{
+				return "user_validation_error_add";
+			}
+			
+			if(validate_role_selection(true) > 0)
 			{
 				return "user_validation_error_add";
 			}
@@ -937,17 +943,22 @@ public class AdminAction extends ActionSupport implements SessionAware{
 				dept_ids_str = "";
 			}
 
-			stmt = con.createStatement();
 			int val = 0;
-			if(stmt !=null)
-			{
-				query = "Insert into user values(0,'"+ firstname + "','" + lastname + "','" + email + "',SHA('" + password + "'),'" + curr_designation + "'," + privilege_level + ",'" + dept_ids_str + "')"; 
-				val = stmt.executeUpdate(query);
-			}
+			prest = con.prepareStatement("INSERT into user (firstname,lastname,email,password,designation,privilege,department_ids) values (?,?,?,SHA(?),?,?,?)");
+			prest.setString(1, firstname);
+			prest.setString(2, lastname);
+			prest.setString(3, email);
+			prest.setString(4, password);
+			prest.setString(5, curr_designation);
+			prest.setInt(6, privilege_level);
+			prest.setString(7, dept_ids_str);
+
+			val = prest.executeUpdate();
 
 			if(val == 0)
 			{
-				return ERROR;
+				addActionMessage("Unable to add user account!");
+				return "user_validation_error_add";
 			}
 			else
 			{
@@ -976,6 +987,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 		int result_validate = 0;
 		String dept_ids_str = "";
 		String query = null;
+		PreparedStatement prest = null;
 
 		try {
 			//Validate User Inputs - Designation and Department List
@@ -1054,21 +1066,25 @@ public class AdminAction extends ActionSupport implements SessionAware{
 				}
 			}
 
-			stmt = con.createStatement();
 			int val = 0;
-			if(stmt !=null)
-			{
-				query = "Update user set firstname='"+ firstname +"',lastname='"+ lastname +"',email='"+ email.trim() +"',designation='" + curr_designation + "',privilege=" + privilege_level + ",department_ids='" + dept_ids_str + "' where userid=" + userid;
-				val = stmt.executeUpdate(query);
-			}
-
+			prest = con.prepareStatement("Update user set firstname=?,lastname=?,email=?,designation=?,privilege=?,department_ids=? where userid=?");
+			prest.setString(1, firstname);
+			prest.setString(2, lastname);
+			prest.setString(3, email);
+			prest.setString(4, curr_designation);
+			prest.setInt(5, privilege_level);
+			prest.setString(6, dept_ids_str);
+			prest.setString(7, userid);
+			val = prest.executeUpdate();
+			
 			if(val == 0)
 			{
-				return ERROR;
+				addActionMessage("Unsuccessfull to update user Info!");
+				return INPUT;
 			}
 			else
 			{
-				addActionMessage("User Info updated  Successfully!");
+				addActionMessage("User Info updated Successfully!");
 				return "user_update_success";
 			}
 		}
@@ -1214,7 +1230,7 @@ public class AdminAction extends ActionSupport implements SessionAware{
 	public List<User> getNewrequest() {
 		return this.newrequest;
 	}
-	
+
 	public List<SystemLogEntry> getLogentries() {
 		return this.logentries;
 	}
@@ -1311,6 +1327,6 @@ public class AdminAction extends ActionSupport implements SessionAware{
 	@Override
 	public void setSession(Map session) {
 		this.session = session;
-		
+
 	}
 }

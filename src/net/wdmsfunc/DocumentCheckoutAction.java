@@ -3,6 +3,7 @@ package net.wdmsfunc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -30,6 +31,264 @@ public class DocumentCheckoutAction extends ActionSupport implements ServletRequ
 	private ArrayList<DocumentObject>viewdocumentlist = new ArrayList<DocumentObject>();
 	private ArrayList<DocumentObject>shareddocumentlist = new ArrayList<DocumentObject>();
 
+	public boolean check_authenctication_to_checkout() throws SQLException{
+		String url = "jdbc:mysql://localhost:3306/";
+		String dbName = "wdms";
+		String driverName = "org.gjt.mm.mysql.Driver";
+		String userName = "root";
+		String password = "aj";
+		Connection con=null;
+		Statement stmt=null;
+		String query = null;
+		String dpartidsstr = null;
+		ResultSet rs = null;
+		int count = 0;
+
+		int prev = Integer.parseInt(session.get("previlige").toString());
+		int userid = Integer.parseInt(session.get("userid").toString());
+
+		try
+		{
+			Class.forName(driverName).newInstance();
+			con = DriverManager.getConnection(url+dbName, userName,password);
+			stmt = con.createStatement();
+		}
+		catch (Exception e) {
+			addActionError("Unable to process the request currently!!");
+			return false;
+		}
+
+		if(prev >=2 && prev <=5)
+		{
+			if(prev == 5) //Corporate Manager
+			{    
+				try
+				{
+					query = "Select * from user where userid=" + userid;
+					rs = stmt.executeQuery(query);
+					ArrayList<Integer> cdeptids = new ArrayList<Integer>();
+					while (rs.next())
+					{  
+						dpartidsstr = rs.getString("department_ids");
+						if(!dpartidsstr.isEmpty())
+						{
+							String delimiter = ",";
+							String[] temp;
+							temp = dpartidsstr.split(delimiter);
+							for(int i =0; i < temp.length ; i++)
+							{
+								cdeptids.add(Integer.parseInt(temp[i]));
+							}
+						}
+					}
+
+					String department_query = "";
+					ListIterator<Integer> litr = cdeptids.listIterator();
+					String id = "";
+					while (litr.hasNext()) {
+						id = litr.next().toString();
+						department_query = department_query + " department_ids="+ id + " or department_ids like '%," + id + "' or department_ids like '"+ id + ",%' or department_ids like '%," + id + ",%'";
+						if(litr.hasNext())
+						{
+							department_query = department_query + " or ";
+						}
+					}
+
+
+					if(!department_query.isEmpty())
+					{
+						query = "Select count(*) from document where docid=" + documentid + " and  (doc_userid="+ userid + "  or (" + department_query + ")) and checkin_status=0";
+					}
+					else
+					{
+						query = "Select count(*) from document where doc_userid="+ userid + " and docid=" + documentid + " and checkin_status=0";
+					}
+
+					rs = stmt.executeQuery(query);
+					while(rs.next())
+					{
+						count = rs.getInt(1);
+					}
+					rs.close();
+					stmt.close();
+
+					if(count == 0) //Check if shared with him with update previliges
+					{
+						stmt = con.createStatement();
+						query = "Select count(*) from document,shared_documents where shared_documents.shared_userid="+ userid + " and shared_documents.doc_id=" + documentid +" and shared_documents.Check_in=1 and shared_documents.doc_id=document.docid and document.checkin_status=0";
+						rs = stmt.executeQuery(query);
+						while(rs.next())
+						{
+							count = rs.getInt(1);
+						}
+						rs.close();	
+						stmt.close();
+					}
+					
+					if(count > 0) //authorized to update
+					{
+						return true;
+					}
+					else //unauthorized to update
+					{
+						addActionError("Unauthorized to update the document!!");
+						return false;
+					}
+				}
+				catch (Exception e) 
+				{
+					addActionError("Unable to process the request currently!!");
+					return false;
+				}
+			}
+
+
+			if(prev == 4) //Department Manager
+			{
+				try
+				{
+					query = "Select * from user where userid=" + userid;
+					// execute the query, and get a java resultset
+					rs = stmt.executeQuery(query);
+
+					// iterate through the java resultset
+					while (rs.next())
+					{  
+						dpartidsstr = rs.getString("department_ids");
+					}
+
+					if(!dpartidsstr.isEmpty())
+					{
+						query = "Select count(*) from document where docid=" + documentid + " and (doc_userid="+ userid + " or ((department_ids="+ dpartidsstr + " or department_ids like '%," + dpartidsstr + "' or department_ids like '"+ dpartidsstr + ",%' or department_ids like '%," + dpartidsstr + ",%') and user_previlige_level<="+prev+"))  and checkin_status=0";
+					}
+					else
+					{
+						query = "Select count(*) from document where doc_userid="+ userid + " and docid=" + documentid + "  and checkin_status=0";
+					}
+
+					rs = stmt.executeQuery(query);
+					while(rs.next())
+					{
+						count = rs.getInt(1);
+					}
+					rs.close();
+					stmt.close();
+
+					if(count == 0) //Check if shared with him with update previliges
+					{
+						stmt = con.createStatement();
+						query = "Select count(*) from document,shared_documents where shared_documents.shared_userid="+ userid + " and shared_documents.doc_id=" + documentid +" and shared_documents.Check_in=1 and shared_documents.doc_id=document.docid and document.checkin_status=0";
+						rs = stmt.executeQuery(query);
+						while(rs.next())
+						{
+							count = rs.getInt(1);
+						}
+						rs.close();
+						stmt.close();
+					}
+					
+					if(count > 0) //authorized to update
+					{
+						return true;
+					}
+					else //unauthorized to update
+					{
+						addActionError("Unauthorized to update the document!!");
+						return false;
+					}
+
+				}
+				catch (Exception e) 
+				{
+					addActionError("Unable to process the request currently!!");
+					return false;
+				}
+			}
+
+			if(prev == 3) //Regular Employee
+			{   
+				try
+				{
+					query = "Select count(*) from document where doc_userid="+ userid + " and docid=" + documentid +  " and checkin_status=0";
+					rs = stmt.executeQuery(query);
+					while(rs.next())
+					{
+						count = rs.getInt(1);
+					}
+					rs.close();
+					stmt.close();
+
+					if(count == 0) //Check if shared with him with update previliges
+					{
+						stmt = con.createStatement();
+						query = "Select count(*) from document,shared_documents where shared_documents.shared_userid="+ userid + " and shared_documents.doc_id=" + documentid +" and shared_documents.Check_in=1 and shared_documents.doc_id=document.docid and document.checkin_status=0";
+						rs = stmt.executeQuery(query);
+						while(rs.next())
+						{
+							count = rs.getInt(1);
+						}
+						rs.close();
+						stmt.close();
+					}
+					
+					if(count > 0) //authorized to update
+					{
+						return true;
+					}
+					else //unauthorized to update
+					{
+						addActionError("Unauthorized to update the document!!");
+						return false;
+					}
+				}
+				catch (Exception e) 
+				{
+					addActionError("Unable to process the request currently!!");
+					return false;
+				}
+			}
+			
+			if(prev == 2) //Guest User
+			{   
+				try
+				{
+
+					//Check if shared with him with update previliges
+					stmt = con.createStatement();
+					query = "Select count(*) from document,shared_documents where shared_documents.shared_userid="+ userid + " and shared_documents.doc_id=" + documentid +" and shared_documents.Check_in=1 and shared_documents.doc_id=document.docid and document.checkin_status=0";
+					rs = stmt.executeQuery(query);
+					while(rs.next())
+					{
+						count = rs.getInt(1);
+					}
+					rs.close();
+					stmt.close();
+					
+					if(count > 0) //authorized to update
+					{
+						return true;
+					}
+					else //unauthorized to update
+					{
+						addActionError("Unauthorized to update the document!!");
+						return false;
+					}
+				}
+				catch (Exception e) 
+				{
+					addActionError("Unable to process the request currently!!");
+					return false;
+				}
+			}
+		}
+		else
+		{
+			addActionError("Unauthorized to update the document!!");
+			return false;
+		}
+
+		return false;
+	}
 
 
 	public String populate_documents() {
@@ -467,7 +726,11 @@ public class DocumentCheckoutAction extends ActionSupport implements ServletRequ
 				return "login";
 			}
 
-			//TODO check authentication of documentid is checkoutable by user
+			if(check_authenctication_to_checkout())
+			{
+				return "error";
+			}
+			
 			String url = "jdbc:mysql://localhost:3306/";
 			String dbName = "wdms";
 			String driverName = "org.gjt.mm.mysql.Driver";

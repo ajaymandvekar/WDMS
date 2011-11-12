@@ -211,6 +211,12 @@
 			<result name="error" type="chain">LogoutAction</result>
 		</action>
 		
+		
+		<action name="ValidateEmailAccountAction" class="net.wdmsfunc.ValidateEmailAccount">
+			<result name="success">/WEB-INF/Temporary/TemporaryUserWelcome.jsp</result>
+			<result name="error" type="chain">LogoutAction</result>
+		</action>
+		
 		<!-- $$$$$$$$$$$$$$$$$ Document View $$$$$$$$$$$$$$    -->
 		
 		<action name="GetDocumentListAction" class="net.wdmsfunc.GetDocumentListAction">

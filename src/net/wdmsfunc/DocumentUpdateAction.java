@@ -725,6 +725,12 @@ public class DocumentUpdateAction extends ActionSupport implements ServletReques
 	}
 
 	public String UpdateMetaDataDocument() throws Exception{
+		
+		if(!session.containsKey("userid"))
+		{
+			return "login";
+		}
+		
 		int userid = Integer.parseInt(session.get("userid").toString());
 		int previlige = Integer.parseInt(session.get("previlige").toString());
 

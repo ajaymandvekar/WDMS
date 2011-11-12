@@ -3,8 +3,9 @@ response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, cached
 response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
 response.setDateHeader("Expires", 0); // Proxies.
 %>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <style type="text/css">
@@ -74,47 +75,9 @@ font-stretch: wider;
 	
 }
 </style>
+<title>Account validation Process</title>
 </head>
 <body>
-<s:set name="theme" value="'simple'" scope="page" />
-	<s:url id="logout" action="LogoutAction"></s:url>
-<div class="outer-box-container">
-	<div class="inner-container">
-	<img src="images/dms-banner.jpg" class="banner">
-		<div class="TopNavigation">
-		<s:a href="%{logout}">Logout</s:a>
-		</div>
-		<div class="navigation">
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-		</div>
-		<div class="operation">
-		<h1>Welcome "<s:property value="#session.name" />"</h1>
-		<s:actionmessage/>
-		</div>
-	</div>
-	</div>
+<s:action name="ValidateEmailAccountAction" executeResult="true" namespace="/"></s:action>
 </body>
 </html>

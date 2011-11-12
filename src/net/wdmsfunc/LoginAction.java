@@ -40,6 +40,7 @@ public class LoginAction extends ActionSupport implements SessionAware{
 			  String firstname = null;
 		      String lastname = null;
 			  String name = null;
+			  String query = null;
 			  
 			  Class.forName(driverName).newInstance();
 			  con = DriverManager.getConnection(url+dbName, userName,password);
@@ -47,7 +48,7 @@ public class LoginAction extends ActionSupport implements SessionAware{
 
 			  if(stmt !=null)
 			  {
-				  String query = "Select userid,privilege,firstname,lastname from user where email='"+ curr_username + "' and password=SHA('"+ curr_password +"')";
+				  query = "Select userid,privilege,firstname,lastname from user where email='"+ curr_username + "' and password=SHA('"+ curr_password +"')";
 				  // execute the query, and get a java resultset
 			      ResultSet rs = stmt.executeQuery(query);
 			      
@@ -60,7 +61,6 @@ public class LoginAction extends ActionSupport implements SessionAware{
 			        lastname = rs.getString("lastname");
 			        name = firstname + " " + lastname;
 			      }
-			      stmt.close();
 			      
 			      if(privilege!=0)
 			      {    	  
@@ -69,19 +69,19 @@ public class LoginAction extends ActionSupport implements SessionAware{
 			    	  session.put("logged-in","true");
 			    	  session.put("userid", id);  
 			    	  session.put("name", name);
+			    	  stmt.close();
 			      }
 			  }
 			  
 			  if(privilege == -1) //System Administrator
 		      {
 				  session.put("previlige","-1");
-				  System.out.println("System Administrator logged In");
 		    	  return "admin_user";
 		      }
 			  else if(privilege == 1) //Temporary User
 			  {
 				  session.put("previlige","1");
-		    	  System.out.println("Temporary User logged In");
+				  addActionMessage("Please be patient till the Administrator assigns a role for you!!");
 		    	  return "temporary_user";
 			  }
 			  else if(privilege == 2) //Guest User
@@ -110,8 +110,36 @@ public class LoginAction extends ActionSupport implements SessionAware{
 			  }
 			  else
 			  {
-				  addActionError("Unauthorized User .. Please register first");
-				  return ERROR;
+				  query = "Select * from temp_user where email='"+ curr_username + "' and password=SHA('"+ curr_password +"')";
+				  // execute the query, and get a java resultset
+			      ResultSet rs = stmt.executeQuery(query);
+			      // iterate through the java resultset
+			      while (rs.next())
+			      {
+			        id = rs.getInt("userid");
+			        privilege = rs.getInt("privilege");
+			        firstname = rs.getString("firstname");
+			        lastname = rs.getString("lastname");
+			        name = firstname + " " + lastname;
+			      }
+			      stmt.close();
+			      
+			      if(privilege!=0)
+			      {    	  
+			    	  ((SessionMap)this.session).invalidate();
+			    	  this.session = ActionContext.getContext().getSession();
+			    	  session.put("logged-in","true");
+			    	  session.put("userid", id);  
+			    	  session.put("name", name);
+			    	
+			    	  addActionMessage("Please validate the email account by clicking on the link sent to the email address '" + curr_username + "'");
+			    	  return "temporary_user";
+			      }
+			      else
+			      {
+					  addActionError("Unauthorized User .. Please register first");
+					  return ERROR;
+			      }
 			  }
 		  }
 		  catch(Exception e)
